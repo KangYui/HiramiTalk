@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HiramiTalk</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+  div { position:relative; }
+  #login { position:absolute; }
+  #board { position:absolute;border:1; }
+  .hc { width:80%; left:0; right:0; margin-left:auto; margin-right:auto; } /* 가로 중앙 정렬 */
+  .vc { height:80%; top: 0; bottom:0; margin-top:auto; margin-bottom:auto; } /* 세로 중앙 정렬 */
+    </style>
+  </head>
+  <body>
+  <div id="board" class="hc vc" style="display:none;">WhiteBoard(Live Updating)<a href="#" onclick="document.getElementById('board').style.display='none';">[X]</a><br />
+    <textarea id="board_text" width="90%" height="90%" oninput="update_board();return false;" cols="150" rows="25"></textarea>
+  </div>
+  <p id="login" class="hc vc">Please Login!<br />
+    ID: <input type="text" id="id" class="form-control"><br />
+    PW: <input type="password" id="pw" class="form-control"><br />
+    <button type="button" class="btn btn-primary" onclick="login();return false;">Login</button><br />
+    if you can't login: Try Chrome or if mobile, Try Mobile Firefox.
+    <br />
+    if you can't use these browsers: Try <a href="/no-notify/">No-Notify Version</a>.
+  </p>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function() {
+    $( "#board" ).draggable();
+  });
+    var usertoken;
+      var socket = io();
+      // request permission on page load
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (Notification.permission !== "granted")
+    Notification.requestPermission();
+});
+
+function update_board(){
+  socket.emit('board_update',document.getElementById('board_text').value);
+}
+          function login(){
+      socket.emit('login',document.getElementById("id").value, document.getElementById("pw").value);
+      }
+      socket.on('token',function(token){
+usertoken=token;
+
+      });
+      socket.on('login_success',function(token){
+document.getElementById('login').style.display='none';
+      socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg));
+  });
+
+
+      socket.on('notify', function(title,msg,level,clicklink){
+
+  if (Notification.permission !== "granted")
+    Notification.requestPermission();
+  else {
+    var notification = new Notification(title, {
+      icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+      body: msg,
+    });
+        notification.onshow = function () {
+      setTimeout(function () {
+        notification.close();
+      }, 5000)
+    };
+
+}
+      });
+      socket.on('refresh', function(){
+        location.reload(true);
+      });
+      socket.on('open_board', function(){
+
+
+        document.getElementById('board').style.display='block';
+      });
+      socket.on('update_board', function(contents){
+        document.getElementById('board_text').value=contents;
+      });
+      socket.emit('welcome',usertoken);
+
+      });
+      socket.on('alert', function(msg){
+      alert(msg);
+});
+      $('form').submit(function(){
+        socket.emit('chat message', $('#m').val(),usertoken);
+        $('#m').val('');
+        return false;
+      });
+    </script>
+    <!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  </body>
+</html>
+

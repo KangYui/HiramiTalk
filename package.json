@@ -1,0 +1,9 @@
+{
+  "name": "HiramiTalk",
+  "version": "0.0.1",
+  "description": "Team Messanger for Needon Team",
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.3.7"
+  }
+}

@@ -1,0 +1,10 @@
+{
+	// This file is not used currently.
+	"port":25565,
+	"welcome_message":"%s님 안녕하세요!",
+	"allow_multiple_login":false,
+	"mysql_host":"127.0.0.1",
+	"mysql_id":"root",
+	"mysql_pw":"******",
+	"mysql_db":"hirami"
+}
